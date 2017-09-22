@@ -43,59 +43,59 @@ class LambdaLog extends EventEmitter {
             // Disables logging to the console (used for testing)
             silent: false
         };
-        
+
         ['info', 'warn', 'error', 'debug'].forEach((lvl) => {
             /**
              * Shorthand log methods for `info`, `debug`, `warn` and `error`
-             * @param  {Any}    msg  Message to log. Can be any type, but string or `Error` reccommended.
+             * @param  {Any}    message  Message to log. Can be any type, but string or `Error` reccommended.
              * @param  {Object} meta Optional meta data to attach to the log.
              * @return {Object}      The compiled log object that was logged to the console.
-             * 
+             *
              * @example
              * const log = require('lambda-log');
-             * 
+             *
              * log.info('Test info log');
              * log.debug('Test debug log');
              * log.warn('Test warn log');
              * log.error('Test error log');
              */
-            this[lvl] = (msg, meta={}) => {
-                return this.log(lvl, msg, meta);
+            this[lvl] = (message, meta={}) => {
+                return this.log(lvl, message, meta);
             };
         });
     }
-    
+
     /**
      * Creates log message based on the provided parameters
      * @param  {String} level Log level (`info`, `debug`, `warn` or `error`)
-     * @param  {Any}    msg   Message to log. Can be any type, but string or `Error` reccommended.
+     * @param  {Any}    message   Message to log. Can be any type, but string or `Error` reccommended.
      * @param  {Object} meta  Optional meta data to attach to the log.
      * @return {Object}       The compiled log object that was logged to the console.
      */
-    log(level, msg, meta={}) {
+    log(level, message, meta={}) {
         if(['info', 'warn', 'error', 'debug'].indexOf(level) === -1) {
             throw new Error(`"${level}" is not a valid log level`);
         }
-        
+
         if(level === 'debug' && !this.config.debug) return false;
-        
+
         let tags = ['log', level].concat(this.config.tags),
             errorMeta = {};
-        
-        // If `msg` is an Error-like object, use the message and add the `stack` to `meta`
-        if(LambdaLog.isError(msg)) {
-            errorMeta.stack = msg.stack;
-            msg = msg.message;
+
+        // If `message` is an Error-like object, use the message and add the `stack` to `meta`
+        if(LambdaLog.isError(message)) {
+            errorMeta.stack = message.stack;
+            message = message.message;
         }
-        
+
         let metadata = Object.assign({}, meta || {}, this.config.meta, errorMeta),
-            data = Object.assign({ msg }, metadata, { _tags: tags });
-        
+            data = Object.assign({ message }, metadata, { _tags: tags });
+
         if(!this.config.silent) {
             let method = level === 'debug'? 'log' : level;
             console[method](JSON.stringify(data, null, this.config.dev? 4 : 0));
         }
-        
+
         /**
          * Emits log event after logging to console with the log data
          * @event log
@@ -104,7 +104,7 @@ class LambdaLog extends EventEmitter {
         this.emit('log', { level, log: data, meta: metadata });
         return data;
     }
-    
+
     /**
      * Checks if value is an Error or Error-like object
      * @static

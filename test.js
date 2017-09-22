@@ -54,7 +54,7 @@ describe('LambdaLog', function() {
             it('should return compiled log data', function() {
                 let logData = log.log('info', 'Test log');
                 assert.equal(typeof logData, 'object');
-                assert.equal(logData.msg, 'Test log');
+                assert.equal(logData.message, 'Test log');
             });
             
             it('should aceept and parse Error object', function() {
@@ -62,7 +62,7 @@ describe('LambdaLog', function() {
                     logData = log.log('error', err);
                     
                 assert.equal(typeof logData, 'object');
-                assert.equal(logData.msg, 'Test error');
+                assert.equal(logData.message, 'Test error');
                 assert(logData.stack);
             });
             
